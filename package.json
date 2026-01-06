@@ -1,0 +1,32 @@
+{
+  "name": "overstim-guard",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "build": "node scripts/build.mjs --prod && npm run typecheck",
+    "dev": "node scripts/build.mjs --watch",
+    "verify": "npm-run-all clean build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felibuscaglia/overstim-guard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/felibuscaglia/overstim-guard/issues"
+  },
+  "homepage": "https://github.com/felibuscaglia/overstim-guard#readme",
+  "devDependencies": {
+    "esbuild": "^0.27.2",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3"
+  }
+}
