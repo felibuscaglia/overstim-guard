@@ -7,9 +7,14 @@
   "scripts": {
     "clean": "rimraf dist",
     "typecheck": "tsc -p tsconfig.typecheck.json",
-    "build": "node scripts/build.mjs --prod && npm run typecheck",
+    "build": "node scripts/build.mjs --prod && npm run typecheck && npm run lint",
     "dev": "node scripts/build.mjs --watch",
-    "verify": "npm-run-all clean build"
+    "verify": "npm-run-all clean build",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.mjs\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.mjs\"",
+    "check": "npm-run-all typecheck lint format:check"
   },
   "repository": {
     "type": "git",
@@ -24,8 +29,14 @@
   },
   "homepage": "https://github.com/felibuscaglia/overstim-guard#readme",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
     "esbuild": "^0.27.2",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.7.4",
     "rimraf": "^6.1.2",
     "typescript": "^5.9.3"
   }
