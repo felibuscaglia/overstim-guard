@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/felibuscaglia/overstim-guard#readme",
   "devDependencies": {
+    "@types/chrome": "^0.1.32",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
     "esbuild": "^0.27.2",
