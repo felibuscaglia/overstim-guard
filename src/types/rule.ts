@@ -1,7 +1,8 @@
+import type { RuleConfig } from "./settings";
+
 /**
  * Context object passed to rules for decision-making
  */
-
 export interface RuleContext {
   // Current page URL
   url: string;
@@ -16,10 +17,7 @@ export interface RuleContext {
   calmModeActive: boolean;
 
   // Per-site overrides (if any)
-  siteOverrides?: {
-    enabled?: boolean;
-    rules?: string[]; // Rule IDs to enable/disable
-  };
+  siteOverrides?: RuleConfig;
 
   // Document object (for DOM access)
   document: Document;

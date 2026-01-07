@@ -1,42 +1,91 @@
 import type { ScheduleConfig } from "@/types/schedule";
+import {
+  DEFAULT_SETTINGS,
+  type RuleConfig,
+  type UserSettings,
+} from "@/types/settings";
 
 const STORAGE_KEYS = {
-  SCHEDULE: "schedule",
-  SITE_OVERRIDES: "siteOverrides",
+  SETTINGS: "userSettings",
 };
 
 // StorageService — Manages extension settings in chrome.storage.local
 export class StorageService {
-  async getSchedule(): Promise<ScheduleConfig | null> {
-    const result = await chrome.storage.local.get(STORAGE_KEYS.SCHEDULE);
-    return (result[STORAGE_KEYS.SCHEDULE] as ScheduleConfig) || null;
+  async getSettings(): Promise<UserSettings> {
+    const result = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+    const stored = result[STORAGE_KEYS.SETTINGS] as UserSettings | undefined;
+
+    return stored || this.defaultSettings;
+  }
+
+  async saveSettings(settings: UserSettings): Promise<void> {
+    await chrome.storage.local.set({
+      [STORAGE_KEYS.SETTINGS]: settings,
+    });
+  }
+
+  async getSchedule(): Promise<ScheduleConfig> {
+    const { schedule } = await this.getSettings();
+    return schedule;
   }
 
   async saveSchedule(schedule: ScheduleConfig): Promise<void> {
-    await chrome.storage.local.set({
-      [STORAGE_KEYS.SCHEDULE]: schedule,
-    });
+    const settings = await this.getSettings();
+    settings.schedule = schedule;
+
+    await this.saveSettings(settings);
   }
 
-  async getSiteOverrides(): Promise<Record<string, object> | null> {
-    const result = await chrome.storage.local.get(STORAGE_KEYS.SITE_OVERRIDES);
-    return (
-      (result[STORAGE_KEYS.SITE_OVERRIDES] as Record<string, object>) || null
-    );
+  async getSiteOverrides(): Promise<Record<string, RuleConfig>> {
+    const { siteOverrides } = await this.getSettings();
+    return siteOverrides;
   }
 
-  async saveSiteOverrides(overrides: Record<string, object>): Promise<void> {
-    await chrome.storage.local.set({
-      [STORAGE_KEYS.SITE_OVERRIDES]: overrides,
-    });
+  async getSiteOverride(domain: string): Promise<RuleConfig | null> {
+    const settings = await this.getSettings();
+    return settings.siteOverrides[domain] || null;
   }
 
-  // Get default schedule (fallback)
-  getDefaultSchedule(): ScheduleConfig {
-    return {
-      type: "fixed",
-      sleepStart: "22:00",
-      sleepEnd: "07:00",
-    };
+  async saveSiteOverrides(
+    overrides: Record<string, RuleConfig>
+  ): Promise<void> {
+    const settings = await this.getSettings();
+    settings.siteOverrides = overrides;
+
+    await this.saveSettings(settings);
+  }
+
+  async updateSiteOverride(
+    domain: string,
+    override: RuleConfig
+  ): Promise<void> {
+    const settings = await this.getSettings();
+    settings.siteOverrides[domain] = override;
+    await this.saveSettings(settings);
+  }
+
+  async removeSiteOverride(domain: string): Promise<void> {
+    const settings = await this.getSettings();
+    delete settings.siteOverrides[domain];
+    await this.saveSettings(settings);
+  }
+
+  async getEnabledRules(): Promise<string[]> {
+    const { enabledRules } = await this.getSettings();
+    return enabledRules;
+  }
+
+  async saveEnabledRules(rules: string[]): Promise<void> {
+    const settings = await this.getSettings();
+    settings.enabledRules = rules;
+    await this.saveSettings(settings);
+  }
+
+  get defaultSettings(): UserSettings {
+    return { ...DEFAULT_SETTINGS };
+  }
+
+  get defaultSchedule(): ScheduleConfig {
+    return this.defaultSettings.schedule;
   }
 }

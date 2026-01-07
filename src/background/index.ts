@@ -8,12 +8,7 @@ const storageService = new StorageService();
 let timeService: TimeService | null = null;
 
 async function initialize(): Promise<void> {
-  let schedule = await storageService.getSchedule();
-
-  if (!schedule) {
-    schedule = storageService.getDefaultSchedule();
-    await storageService.saveSchedule(schedule);
-  }
+  const schedule = await storageService.getSchedule();
 
   timeService = new TimeService(schedule);
 
@@ -23,8 +18,8 @@ async function initialize(): Promise<void> {
 
   timeService.start();
 
-  const intiialState = timeService.getState();
-  broadcastContextUpdate(intiialState.calmModeActive);
+  const initialState = timeService.getState();
+  broadcastContextUpdate(initialState.calmModeActive);
 }
 
 // Broadcast context update to all content scripts
@@ -55,7 +50,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (!timeService) {
         sendResponse({
           calmModeActive: false,
-          siteOverrides: null,
+          siteOverrides: {},
         });
 
         return;
@@ -65,7 +60,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       storageService.getSiteOverrides().then((siteOverrides) => {
         sendResponse({
           calmModeActive: state.calmModeActive,
-          siteOverrides: siteOverrides || undefined,
+          siteOverrides,
           currentTime: state.currentTime.toISOString(),
         });
       });
