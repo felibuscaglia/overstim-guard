@@ -1,14 +1,18 @@
+import { AudioSurpriseBlockRule } from "@/rules/audio-surprise-block";
+import { AutoplayBlockRule } from "@/rules/autoplay-block";
+import { InfiniteScrollBlockRule } from "@/rules/infinite-scroll-block";
 import { RuleRegistry } from "@/rules/registry";
+import { ThumbnailDimmingRule } from "@/rules/thumbnail-dimming";
 import { RuleContext } from "@/types/rule";
 import { buildRuleContext } from "@/utils/context";
 
 const registry = new RuleRegistry();
 
 async function initializeRuleEngine(): Promise<void> {
-  // TODO: Import and register all rules here
-  // Example:
-  // import { AutoplayBlockRule } from '@/rules/autoplay-block';
-  // registry.register(new AutoplayBlockRule());
+  registry.register(new AutoplayBlockRule());
+  registry.register(new InfiniteScrollBlockRule());
+  registry.register(new ThumbnailDimmingRule());
+  registry.register(new AudioSurpriseBlockRule());
 
   // Get initial context from background script
   const context = await getContextFromBackground();
