@@ -30,7 +30,11 @@ async function getContextFromBackground(): Promise<RuleContext> {
     });
 
     if (response?.calmModeActive !== undefined) {
-      return buildRuleContext(response.calmModeActive, response.siteOverrides);
+      return buildRuleContext(
+        response.calmModeActive,
+        response.siteOverrides,
+        response.currentTime
+      );
     }
   } catch (error) {
     console.error("Error getting context from background:", error);
@@ -46,7 +50,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     case "CONTEXT_UPDATED":
       const context = buildRuleContext(
         message.calmModeActive,
-        message.siteOverrides
+        message.siteOverrides,
+        message.currentTime // Use time from background if provided
       );
 
       // Reapply rules with new context

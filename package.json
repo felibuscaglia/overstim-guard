@@ -30,6 +30,7 @@
   "homepage": "https://github.com/felibuscaglia/overstim-guard#readme",
   "devDependencies": {
     "@types/chrome": "^0.1.32",
+    "@types/suncalc": "^1.9.2",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
     "esbuild": "^0.27.2",
@@ -40,5 +41,8 @@
     "prettier": "^3.7.4",
     "rimraf": "^6.1.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "suncalc": "^1.9.0"
   }
 }
