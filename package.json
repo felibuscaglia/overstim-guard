@@ -43,6 +43,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@github/mini-throttle": "^2.1.1",
     "suncalc": "^1.9.0"
   }
 }
