@@ -214,6 +214,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
       return true;
 
+    case "BROADCAST_UPDATE":
+      // Trigger a broadcast update (used by options page after settings changes)
+      broadcastContextUpdate(timeService?.getState().calmModeActive ?? false);
+      sendResponse({ success: true });
+      return true;
+
     default:
       return false;
   }

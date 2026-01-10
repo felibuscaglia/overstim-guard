@@ -13,6 +13,7 @@ const entryPoints = {
   background: join(srcDir, "background", "index.ts"),
   content: join(srcDir, "content", "index.ts"),
   popup: join(srcDir, "popup", "index.ts"),
+  options: join(srcDir, "options", "index.ts"),
 };
 
 function clean() {
@@ -29,6 +30,7 @@ function copyPublic() {
     "popup.html",
     "popup.css",
     "options.html",
+    "options.css",
   ];
 
   let copiedCount = 0;
@@ -41,7 +43,7 @@ function copyPublic() {
       copiedCount++;
     }
   }
-  
+
   if (isWatch && copiedCount > 0) {
     console.log(`✓ Copied ${copiedCount} file(s) to dist/`);
   }
@@ -93,7 +95,12 @@ async function main() {
     // Watch public directory for HTML/CSS changes
     if (existsSync(publicDir)) {
       watch(publicDir, { recursive: false }, (eventType, filename) => {
-        if (filename && (filename.endsWith(".html") || filename.endsWith(".css") || filename === "manifest.json")) {
+        if (
+          filename &&
+          (filename.endsWith(".html") ||
+            filename.endsWith(".css") ||
+            filename === "manifest.json")
+        ) {
           console.log(`\n📝 Detected change in ${filename}, copying...`);
           copyPublic();
           console.log("✓ Reload extension in Chrome to see changes.");
@@ -101,7 +108,7 @@ async function main() {
       });
       console.log("✓ Watching public/ directory for HTML/CSS changes");
     }
-    
+
     // Also watch for changes in src/ to show rebuild messages
     ctx.rebuild().then(() => {
       console.log("\n✓ Initial build complete");

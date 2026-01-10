@@ -40,6 +40,9 @@ const siteOverrideText = document.getElementById("site-override-text")!;
 const audioSurpriseToggle = document.getElementById(
   "audio-surprise-toggle"
 ) as HTMLInputElement;
+const settingsLinkBtn = document.getElementById(
+  "settings-link-btn"
+) as HTMLButtonElement;
 
 async function initialize(): Promise<void> {
   await loadState();
@@ -84,6 +87,7 @@ function setupEventListeners(): void {
   thumbnailsToggle.addEventListener("change", handleThumbnailsToggle);
   audioSurpriseToggle.addEventListener("change", handleAudioSurpriseToggle);
   siteOverrideBtn.addEventListener("click", handleSiteOverride);
+  settingsLinkBtn.addEventListener("click", handleOpenSettings);
 }
 
 async function handleAutoplayToggle(): Promise<void> {
@@ -179,6 +183,31 @@ async function handleExtensionToggle(): Promise<void> {
     extensionToggle.checked = !enabled;
   } finally {
     extensionToggle.disabled = false;
+  }
+}
+
+function handleOpenSettings(event?: Event): void {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  try {
+    chrome.runtime.openOptionsPage(() => {
+      if (chrome.runtime.lastError) {
+        console.error("Error opening options page:", chrome.runtime.lastError);
+        // Fallback: try opening in a new tab
+        chrome.tabs.create({
+          url: chrome.runtime.getURL("options.html"),
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error opening options page:", error);
+    // Fallback: try opening in a new tab
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("options.html"),
+    });
   }
 }
 

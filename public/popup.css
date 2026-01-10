@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto,
@@ -13,6 +17,10 @@ body {
   background: #ffffff;
   width: 360px;
   min-height: 200px;
+  max-height: 600px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -20,6 +28,9 @@ body {
 .popup-container {
   padding: 24px;
   transition: all 0.2s ease;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* When site is disabled, make everything more muted/whiter */
@@ -67,6 +78,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .title {
@@ -303,13 +321,46 @@ input:disabled + .slider:before {
   background: #f6f9fc;
 }
 
+/* Settings Icon Button */
+.settings-icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #8898aa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.settings-icon-btn:hover:not(:disabled) {
+  background: #e3ebf0;
+  color: #0a2540;
+}
+
+.settings-icon-btn:active:not(:disabled) {
+  background: #cbd5e0;
+  transform: translateY(0.5px);
+}
+
+.settings-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Focus states for accessibility */
 .switch input:focus-visible + .slider {
   outline: 2px solid #635bff;
   outline-offset: 2px;
 }
 
-.site-override-btn:focus-visible {
+.site-override-btn:focus-visible,
+.settings-icon-btn:focus-visible {
   outline: 2px solid #635bff;
   outline-offset: 2px;
 }

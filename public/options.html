@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overstim Guard - Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <div class="options-container">
+      <!-- Header -->
+      <div class="header">
+        <h1 class="title">Overstim Guard Settings</h1>
+        <div class="status-badge" id="status-badge">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="current-mode">Day mode</span>
+        </div>
+      </div>
+
+      <!-- Sleep Schedule Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Sleep Schedule</h2>
+          <p class="section-description">Configure when calm mode activates automatically</p>
+        </div>
+
+        <div class="card">
+          <div class="schedule-type-selector">
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="schedule-type"
+                value="fixed"
+                id="schedule-type-fixed"
+              />
+              <span class="radio-label">Fixed Times</span>
+            </label>
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="schedule-type"
+                value="sunset-sunrise"
+                id="schedule-type-sunset"
+              />
+              <span class="radio-label">Sunset to Sunrise</span>
+            </label>
+          </div>
+
+          <!-- Fixed Schedule Fields -->
+          <div class="schedule-fields" id="fixed-schedule-fields">
+            <div class="form-group">
+              <label for="sleep-start" class="form-label">Sleep Start</label>
+              <input type="time" id="sleep-start" class="form-input" required />
+              <span class="error-message" id="sleep-start-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="sleep-end" class="form-label">Sleep End</label>
+              <input type="time" id="sleep-end" class="form-input" required />
+              <span class="error-message" id="sleep-end-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="timezone" class="form-label"
+                >Timezone (optional)</label
+              >
+              <select id="timezone" class="form-select">
+                <option value="">Use local timezone</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sunset-Sunrise Schedule Fields -->
+          <div
+            class="schedule-fields"
+            id="sunset-schedule-fields"
+            style="display: none"
+          >
+            <div class="form-group">
+              <label for="latitude" class="form-label">Latitude</label>
+              <input
+                type="number"
+                id="latitude"
+                class="form-input"
+                step="0.000001"
+                min="-90"
+                max="90"
+                required
+              />
+              <button type="button" class="btn-secondary" id="get-location-btn">
+                Use My Location
+              </button>
+              <span class="error-message" id="latitude-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="longitude" class="form-label">Longitude</label>
+              <input
+                type="number"
+                id="longitude"
+                class="form-input"
+                step="0.000001"
+                min="-180"
+                max="180"
+                required
+              />
+              <span class="error-message" id="longitude-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="offset-before-sunset" class="form-label">
+                Minutes Before Sunset
+              </label>
+              <input
+                type="number"
+                id="offset-before-sunset"
+                class="form-input"
+                min="0"
+                step="1"
+                value="0"
+              />
+              <span
+                class="error-message"
+                id="offset-before-sunset-error"
+              ></span>
+            </div>
+
+            <div class="form-group">
+              <label for="offset-after-sunrise" class="form-label">
+                Minutes After Sunrise
+              </label>
+              <input
+                type="number"
+                id="offset-after-sunrise"
+                class="form-input"
+                min="0"
+                step="1"
+                value="0"
+              />
+              <span
+                class="error-message"
+                id="offset-after-sunrise-error"
+              ></span>
+            </div>
+          </div>
+
+          <div class="save-indicator" id="schedule-save-indicator"></div>
+        </div>
+      </div>
+
+      <!-- Reset to Defaults -->
+      <div class="section">
+        <div class="card">
+          <div class="reset-section">
+            <div class="reset-content">
+              <h3 class="subsection-title">Reset to Defaults</h3>
+              <p class="reset-description">
+                Reset all settings to their default values
+              </p>
+            </div>
+            <button type="button" class="btn-danger" id="reset-defaults-btn">
+              Reset All Settings
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
