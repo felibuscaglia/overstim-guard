@@ -24,13 +24,14 @@ let currentState: ExtensionState = {
 const extensionToggle = document.getElementById(
   "extension-toggle"
 ) as HTMLInputElement;
+const statusBadge = document.getElementById("status-badge")!;
 const currentMode = document.getElementById("current-mode")!;
 const autoplayToggle = document.getElementById(
   "autoplay-toggle"
 ) as HTMLInputElement;
 const feedsToggle = document.getElementById("feeds-toggle") as HTMLInputElement;
 const thumbnailsToggle = document.getElementById(
-  "audio-surprise-toggle"
+  "thumbnails-toggle"
 ) as HTMLInputElement;
 const siteOverrideBtn = document.getElementById(
   "site-override-btn"
@@ -46,8 +47,13 @@ async function initialize(): Promise<void> {
   updateUI();
 }
 
-async function loadState(): Promise<void> {
+async function loadState(retries = 0): Promise<void> {
   try {
+    // Check if service worker is available
+    if (!chrome.runtime?.id) {
+      console.warn("Extension runtime not available");
+      return;
+    }
     const response = await chrome.runtime.sendMessage({
       type: "GET_EXTENSION_STATE",
     });
@@ -62,6 +68,11 @@ async function loadState(): Promise<void> {
       };
     }
   } catch (error) {
+    // Service worker might not be ready yet, so we try to wake it up
+    if (retries < 10) {
+      loadState(retries + 1);
+    }
+
     console.error("Error loading state:", error);
   }
 }
@@ -80,14 +91,16 @@ async function handleAutoplayToggle(): Promise<void> {
 }
 
 async function handleFeedsToggle(): Promise<void> {
-  await toggleRule(RULE_IDS.thumbnails, thumbnailsToggle);
+  await toggleRule(RULE_IDS.feeds, feedsToggle);
 }
 
 async function handleThumbnailsToggle(): Promise<void> {
-  await toggleRule(RULE_IDS.audioSurprise, audioSurpriseToggle);
+  await toggleRule(RULE_IDS.thumbnails, thumbnailsToggle);
 }
 
-async function handleAudioSurpriseToggle(): Promise<void> {}
+async function handleAudioSurpriseToggle(): Promise<void> {
+  await toggleRule(RULE_IDS.audioSurprise, audioSurpriseToggle);
+}
 
 async function toggleRule(
   ruleId: string,
@@ -173,32 +186,38 @@ function updateUI(): void {
   extensionToggle.checked = currentState.extensionEnabled;
   extensionToggle.disabled = false;
 
-  const mode =
-    currentState.extensionEnabled && currentState.calmModeActive
-      ? "Calm"
-      : "Day";
+  const isCalmMode =
+    currentState.extensionEnabled && currentState.calmModeActive;
+  const mode = isCalmMode ? "Calm mode" : "Day mode";
   currentMode.textContent = mode;
-  currentMode.className = mode === "Calm" ? "mode-value calm" : "mode-value";
+  statusBadge.classList.toggle("calm", isCalmMode);
 
   const togglesEnabled = currentState.extensionEnabled;
-  const autoplayEnabled =
-    togglesEnabled && !currentState.enabledRules.includes(RULE_IDS.autoplay);
+
+  // If enabledRules is empty, all rules are enabled by default
+  // If a rule ID is in enabledRules, that rule is enabled
+  const isRuleEnabled = (ruleId: string) => {
+    return (
+      currentState.enabledRules.length === 0 ||
+      currentState.enabledRules.includes(ruleId)
+    );
+  };
+
+  const autoplayEnabled = togglesEnabled && isRuleEnabled(RULE_IDS.autoplay);
   autoplayToggle.checked = autoplayEnabled;
   autoplayToggle.disabled = !togglesEnabled;
 
-  const feedsEnabled =
-    togglesEnabled && !currentState.enabledRules.includes(RULE_IDS.feeds);
+  const feedsEnabled = togglesEnabled && isRuleEnabled(RULE_IDS.feeds);
   feedsToggle.checked = feedsEnabled;
   feedsToggle.disabled = !togglesEnabled;
 
   const thumbnailsEnabled =
-    togglesEnabled && !currentState.enabledRules.includes(RULE_IDS.thumbnails);
+    togglesEnabled && isRuleEnabled(RULE_IDS.thumbnails);
   thumbnailsToggle.checked = thumbnailsEnabled;
   thumbnailsToggle.disabled = !togglesEnabled;
 
   const audioSurpriseEnabled =
-    togglesEnabled &&
-    !currentState.enabledRules.includes(RULE_IDS.audioSurprise);
+    togglesEnabled && isRuleEnabled(RULE_IDS.audioSurprise);
   audioSurpriseToggle.checked = audioSurpriseEnabled;
   audioSurpriseToggle.disabled = !togglesEnabled;
 
@@ -206,7 +225,7 @@ function updateUI(): void {
   siteOverrideBtn.disabled = !togglesEnabled || !currentState.currentDomain;
   siteOverrideBtn.classList.toggle("active", hasOverride);
   siteOverrideText.textContent = hasOverride
-    ? "Remove override for this site"
+    ? "Enable for this site"
     : "Disable for this site";
 }
 

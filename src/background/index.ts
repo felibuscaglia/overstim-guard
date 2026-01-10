@@ -83,14 +83,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       Promise.all([
         storageService.getSiteOverrides(),
         storageService.getExtensionEnabled(),
-      ]).then(([siteOverrides, extensionEnabled]) => {
-        sendResponse({
-          calmModeActive: extensionEnabled ? state.calmModeActive : false,
-          extensionEnabled,
-          siteOverrides,
-          currentTime: state.currentTime.toISOString(),
-        });
-      });
+      ])
+        .then(([siteOverrides, extensionEnabled]) => {
+          sendResponse({
+            calmModeActive: extensionEnabled ? state.calmModeActive : false,
+            extensionEnabled,
+            siteOverrides,
+            currentTime: state.currentTime.toISOString(),
+          });
+        })
+        .catch((err) => sendResponse({ success: false, error: err }));
 
       return true;
 

@@ -1,5 +1,5 @@
 import { build, context } from "esbuild";
-import { rmSync, mkdirSync, copyFileSync, existsSync } from "node:fs";
+import { rmSync, mkdirSync, copyFileSync, existsSync, watch } from "node:fs";
 import { join } from "node:path";
 
 const isWatch = process.argv.includes("--watch");
@@ -31,11 +31,19 @@ function copyPublic() {
     "options.html",
   ];
 
+  let copiedCount = 0;
   for (const file of filesToCopy) {
     const src = join(publicDir, file);
     const dist = join(distDir, file);
 
-    if (existsSync(src)) copyFileSync(src, dist);
+    if (existsSync(src)) {
+      copyFileSync(src, dist);
+      copiedCount++;
+    }
+  }
+  
+  if (isWatch && copiedCount > 0) {
+    console.log(`✓ Copied ${copiedCount} file(s) to dist/`);
   }
 }
 
@@ -79,7 +87,25 @@ async function main() {
     });
 
     await ctx.watch();
-    console.log("Watching for changes...");
+    console.log("✓ Watching for TypeScript changes in src/");
+    console.log("✓ Build complete. Reload extension in Chrome to see changes.");
+
+    // Watch public directory for HTML/CSS changes
+    if (existsSync(publicDir)) {
+      watch(publicDir, { recursive: false }, (eventType, filename) => {
+        if (filename && (filename.endsWith(".html") || filename.endsWith(".css") || filename === "manifest.json")) {
+          console.log(`\n📝 Detected change in ${filename}, copying...`);
+          copyPublic();
+          console.log("✓ Reload extension in Chrome to see changes.");
+        }
+      });
+      console.log("✓ Watching public/ directory for HTML/CSS changes");
+    }
+    
+    // Also watch for changes in src/ to show rebuild messages
+    ctx.rebuild().then(() => {
+      console.log("\n✓ Initial build complete");
+    });
   } else {
     await bundle();
   }

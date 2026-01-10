@@ -82,19 +82,21 @@ public/
 manifest.json      # Extension manifest
 dist/                # Build output (load this into browser)
 
-````
+```
 
 ---
 
 ## 🚀 Development
 
 ### Prerequisites
+
 - Node.js 18+
 
 ### Install dependencies
+
 ```bash
 npm install
-````
+```
 
 ### Run in development mode (watch)
 
@@ -115,14 +117,28 @@ npm run build
 3. Click **Load unpacked**
 4. Select the `dist/` folder
 
+### 🔄 Seeing Your Changes
+
+After making code changes:
+
+1. **Keep `npm run dev` running** - it will automatically rebuild when you save files
+2. **Reload the extension** in Chrome:
+   - **Recommended:** Install [Extension Reloader](https://chrome.google.com/webstore/detail/extensions-reloader/fimgfedafeadlieiabdeeaodndnlbhid) Chrome Extension for automatic reloading on file changes
+   - **Manual:** Go to `chrome://extensions`, click the **reload icon** (↻) on your extension card
+3. **For popup changes**: Close and reopen the popup after reloading
+4. **For content script changes**: Refresh the webpage you're testing on
+5. **For background changes**: The service worker will restart automatically after reload
+
+**💡 Tip:** Using Extension Reloader significantly improves the development experience by automatically reloading your extension when files in the `dist/` folder change.
+
 ---
 
 ## 🧪 Debugging
 
-* **Background logs**
+- **Background logs**
   `chrome://extensions → Overstim Guard → Service worker`
 
-* **Content script logs**
+- **Content script logs**
   Open DevTools on any webpage → Console → switch context to **Content scripts**
 
 ---
@@ -131,10 +147,10 @@ npm run build
 
 Overstim Guard:
 
-* Does **not** collect user data
-* Does **not** send network requests
-* Does **not** track browsing behavior
-* Stores settings locally using browser storage APIs only
+- Does **not** collect user data
+- Does **not** send network requests
+- Does **not** track browsing behavior
+- Stores settings locally using browser storage APIs only
 
 This design is intentional and foundational to the project.
 
