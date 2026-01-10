@@ -192,8 +192,10 @@ function updateUI(): void {
   currentMode.textContent = mode;
   statusBadge.classList.toggle("calm", isCalmMode);
 
-  const togglesEnabled = currentState.extensionEnabled;
+  const hasOverride = currentState.siteOverride !== null;
+  const togglesEnabled = currentState.extensionEnabled && !hasOverride;
 
+  // If site override is active, disable all rule toggles
   // If enabledRules is empty, all rules are enabled by default
   // If a rule ID is in enabledRules, that rule is enabled
   const isRuleEnabled = (ruleId: string) => {
@@ -221,8 +223,14 @@ function updateUI(): void {
   audioSurpriseToggle.checked = audioSurpriseEnabled;
   audioSurpriseToggle.disabled = !togglesEnabled;
 
-  const hasOverride = currentState.siteOverride !== null;
-  siteOverrideBtn.disabled = !togglesEnabled || !currentState.currentDomain;
+  // Apply disabled state to the popup container when override is active
+  const popupContainer = document.querySelector(".popup-container");
+  if (popupContainer) {
+    popupContainer.classList.toggle("site-disabled", hasOverride);
+  }
+
+  siteOverrideBtn.disabled =
+    !currentState.extensionEnabled || !currentState.currentDomain;
   siteOverrideBtn.classList.toggle("active", hasOverride);
   siteOverrideText.textContent = hasOverride
     ? "Enable for this site"
