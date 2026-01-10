@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overstim Guard</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup-container">
+      <!-- Extension Toggle -->
+      <div class="section">
+        <div class="toggle-row">
+          <label class="toggle-label">Overstim Guard</label>
+          <label class="switch">
+            <input type="checkbox" id="extension-toggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Current Mode Display -->
+      <div class="section">
+        <div class="mode-display">
+          <span class="mode-label">Mode:</span>
+          <span class="mode-value" id="current-mode">Day</span>
+        </div>
+      </div>
+
+      <!-- Quick Toggles -->
+      <div class="section">
+        <div class="quick-toggles">
+          <div class="toggle-item">
+            <label class="toggle-label">Autoplay</label>
+            <label class="switch switch-small">
+              <input type="checkbox" id="autoplay-toggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle-label">Feeds</label>
+            <label class="switch switch-small">
+              <input type="checkbox" id="feeds-toggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle-label">Thumbnails</label>
+            <label class="switch switch-small">
+              <input type="checkbox" id="thumbnails-toggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle-label">Audio Surprise</label>
+            <label class="switch switch-small">
+              <input type="checkbox" id="audio-surprise-toggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Site Override -->
+      <div class="section">
+        <button class="site-override-btn" id="site-override-btn">
+          <span id="site-override-text">Override for this site</span>
+        </button>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -42,7 +42,12 @@ const INJECTION_MARKER = "data-overstim-guard-injected";
         type: "GET_CONTEXT",
       });
 
-      if (response?.calmModeActive !== undefined) {
+      if (response?.calmModeActive) {
+        // If extension is disabled, don't apply rules
+        if (response.extensionEnabled === false) {
+          return buildRuleContext(false, undefined, response.currentTime);
+        }
+
         return buildRuleContext(
           response.calmModeActive,
           response.siteOverrides,
@@ -65,6 +70,12 @@ const INJECTION_MARKER = "data-overstim-guard-injected";
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     switch (message.type) {
       case "CONTEXT_UPDATED":
+        if(message.extensionEnabled === false) {
+          registry.revertAll();
+          sendResponse({ success: true });
+          break;
+        }
+        
         const context = buildRuleContext(
           message.calmModeActive,
           message.siteOverrides,
@@ -122,7 +133,7 @@ const INJECTION_MARKER = "data-overstim-guard-injected";
   });
 
   window.addEventListener("beforeunload", () => {
-    if(urlChangeObserver) {
+    if (urlChangeObserver) {
       urlChangeObserver.disconnect();
       urlChangeObserver = null;
     }
@@ -132,7 +143,7 @@ const INJECTION_MARKER = "data-overstim-guard-injected";
     document.documentElement.removeAttribute(INJECTION_MARKER);
   });
 
-  if(document.readyState === 'loading') {
+  if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initializeRuleEngine);
   } else {
     initializeRuleEngine();

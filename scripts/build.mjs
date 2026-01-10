@@ -12,6 +12,7 @@ const publicDir = "public";
 const entryPoints = {
   background: join(srcDir, "background", "index.ts"),
   content: join(srcDir, "content", "index.ts"),
+  popup: join(srcDir, "popup", "index.ts"),
 };
 
 function clean() {
@@ -23,7 +24,12 @@ function copyPublic() {
   // Copies manifest + static HTML/CSS/icons into dist
   if (!existsSync(publicDir)) return;
 
-  const filesToCopy = ["manifest.json", "popup.html", "options.html"];
+  const filesToCopy = [
+    "manifest.json",
+    "popup.html",
+    "popup.css",
+    "options.html",
+  ];
 
   for (const file of filesToCopy) {
     const src = join(publicDir, file);

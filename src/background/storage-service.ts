@@ -81,6 +81,17 @@ export class StorageService {
     await this.saveSettings(settings);
   }
 
+  async getExtensionEnabled(): Promise<boolean> {
+    const settings = await this.getSettings();
+    return settings.extensionEnabled ?? true;
+  }
+
+  async setExtensionEnabled(enabled: boolean): Promise<void> {
+    const settings = await this.getSettings();
+    settings.extensionEnabled = enabled;
+    await this.saveSettings(settings);
+  }
+
   get defaultSettings(): UserSettings {
     return { ...DEFAULT_SETTINGS };
   }

@@ -15,6 +15,7 @@ export interface UserSettings {
   schedule: ScheduleConfig;
   enabledRules: RuleID[];
   siteOverrides: Record<string, RuleConfig>;
+  extensionEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -25,4 +26,5 @@ export const DEFAULT_SETTINGS: UserSettings = {
   },
   enabledRules: [], // Empty array means all rules are enabled by default
   siteOverrides: {},
+  extensionEnabled: true,
 };

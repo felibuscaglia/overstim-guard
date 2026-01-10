@@ -24,6 +24,26 @@ async function initialize(): Promise<void> {
 
 // Broadcast context update to all content scripts
 async function broadcastContextUpdate(calmModeActive: boolean): Promise<void> {
+  const extensionEnabled = await storageService.getExtensionEnabled();
+
+  if (!extensionEnabled) {
+    const tabs = await chrome.tabs.query({});
+    tabs.forEach((tab) => {
+      if (tab.id) {
+        chrome.tabs
+          .sendMessage(tab.id, {
+            type: "CONTEXT_UPDATED",
+            calmModeActive: false,
+            extensionEnabled: false,
+            siteOverrides: {},
+          })
+          .catch(() => {});
+      }
+    });
+
+    return;
+  }
+
   const siteOverrides = await storageService.getSiteOverrides();
 
   // Get all tabs
@@ -48,18 +68,25 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   switch (message.type) {
     case "GET_CONTEXT":
       if (!timeService) {
-        sendResponse({
-          calmModeActive: false,
-          siteOverrides: {},
+        storageService.getExtensionEnabled().then((extensionEnabled) => {
+          sendResponse({
+            calmModeActive: false,
+            extensionEnabled,
+            siteOverrides: {},
+          });
         });
 
-        return;
+        return true;
       }
 
       const state = timeService.getState();
-      storageService.getSiteOverrides().then((siteOverrides) => {
+      Promise.all([
+        storageService.getSiteOverrides(),
+        storageService.getExtensionEnabled(),
+      ]).then(([siteOverrides, extensionEnabled]) => {
         sendResponse({
-          calmModeActive: state.calmModeActive,
+          calmModeActive: extensionEnabled ? state.calmModeActive : false,
+          extensionEnabled,
           siteOverrides,
           currentTime: state.currentTime.toISOString(),
         });
@@ -78,6 +105,110 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       } else {
         sendResponse({ success: false, error: "TimeService not initialized" });
       }
+
+      return true;
+
+    case "GET_EXTENSION_STATE":
+      Promise.all([
+        storageService.getExtensionEnabled(),
+        storageService.getSiteOverrides(),
+        chrome.tabs.query({ active: true, currentWindow: true }),
+      ]).then(async ([extensionEnabled, siteOverrides, tabs]) => {
+        const tab = tabs[0];
+        const state = timeService?.getState();
+        const calmModeActive =
+          extensionEnabled && state?.calmModeActive ? true : false;
+
+        let currentDomain: string | null = null;
+        if (tab?.url) {
+          try {
+            const url = new URL(tab.url);
+            currentDomain = url.hostname;
+          } catch {
+            // Invalid URL
+          }
+        }
+
+        const siteOverride = currentDomain
+          ? siteOverrides[currentDomain]
+          : null;
+        const enabledRules = state
+          ? await storageService.getEnabledRules()
+          : [];
+
+        sendResponse({
+          extensionEnabled,
+          calmModeActive,
+          currentDomain,
+          siteOverride,
+          enabledRules,
+        });
+      });
+
+      return true;
+
+    case "TOGGLE_EXTENSION":
+      const newEnabled = message.enabled as boolean;
+      storageService.setExtensionEnabled(newEnabled).then(() => {
+        broadcastContextUpdate(timeService?.getState().calmModeActive ?? false);
+        sendResponse({ success: true });
+      });
+
+      return true;
+
+    case "TOGGLE_RULE":
+      const ruleId = message.ruleId as string;
+      storageService.getEnabledRules().then((enabledRules) => {
+        const isEnabled = enabledRules.includes(ruleId);
+        const newEnabledRules = isEnabled
+          ? enabledRules.filter((id) => id !== ruleId)
+          : [...enabledRules, ruleId];
+
+        storageService.saveEnabledRules(newEnabledRules).then(() => {
+          broadcastContextUpdate(
+            timeService?.getState().calmModeActive ?? false
+          );
+          sendResponse({ success: true, enabled: !isEnabled });
+        });
+      });
+
+      return true;
+
+    case "TOGGLE_SITE_OVERRIDE":
+      chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+        const tab = tabs[0];
+        if (!tab?.url) {
+          sendResponse({ success: true, error: "No active tab" });
+          return;
+        }
+
+        try {
+          const url = new URL(tab.url);
+          const domain = url.hostname;
+
+          storageService.getSiteOverride(domain).then((existingOverride) => {
+            if (existingOverride) {
+              storageService.removeSiteOverride(domain).then(() => {
+                broadcastContextUpdate(
+                  timeService?.getState().calmModeActive ?? false
+                );
+                sendResponse({ success: true, removed: true });
+              });
+            } else {
+              storageService
+                .updateSiteOverride(domain, { enabled: false })
+                .then(() => {
+                  broadcastContextUpdate(
+                    timeService?.getState().calmModeActive ?? false
+                  );
+                  sendResponse({ success: true, removed: false });
+                });
+            }
+          });
+        } catch {
+          sendResponse({ success: false, error: "Invalid URL" });
+        }
+      });
 
       return true;
 

@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "description": "Circadian-aware content intensity control.",
   "action": {
-    "default_title": "Overstim Guard"
+    "default_title": "Overstim Guard",
+    "default_popup": "popup.html"
   },
   "permissions": ["storage", "tabs", "activeTab"],
   "host_permissions": ["<all_urls>"],
